@@ -1,9 +1,11 @@
-const { User } = requiure('../models');
+const { User } = require('../models');
 
 const userController = {
     // get all users
     getAllUsers(req, res) {
         User.find({})
+            .select('-__v')
+            .sort({ _id: -1 })
             .then(dbUserData => res.json(dbUserData))
             .catch(err => {
                 console.log(err);
@@ -14,6 +16,7 @@ const userController = {
     // get one user by id
     getUserById({ params }, res) {
         User.findOne({ _id: params.id})
+            .select('-__v')
             .then(dbUserData => {
                 // If no user is found, send 404
                 if (!dbUserData) {
@@ -50,14 +53,46 @@ const userController = {
     // delete user
     deleteUser({ params }, res) {
         User.findOneAndDelete({ _id: params.id })
+            .then(deletedUser => {
+                if (!deletedUser) {
+                    res.status(404).json({ message: 'No user found with this id!' });
+                    return;
+                }
+                res.json(deletedUser);
+            })
+            .catch(err => res.status(400).json(err));
+    },
+
+    addFriend({ params }, res) {
+        User.findOne({ _id: params.friendId})
+            .then(friendUser => {
+                return User.findOneAndUpdate(
+                    { _id: params.userId },
+                    { $push: { friends: friendUser } },
+                    { new: true }
+                )
+            })
             .then(dbUserData => {
-                if (!dbUserData) {
+                if(!dbUserData) {
                     res.status(404).json({ message: 'No user found with this id!' });
                     return;
                 }
                 res.json(dbUserData);
             })
-            .catch(err => res.status(400).json(err));
+            .catch(err => res.json(err));
+    },
+
+    deleteFriend({ params }, res) {
+        User.findOneAndUpdate(
+            { _id: params.userId },
+            { $pull: { friends: params.friendId } },
+            { new: true }
+        )
+            .then(dbUserData => {
+                console.log(dbUserData)
+                res.json(dbUserData)
+            })
+            .catch(err => res.json(err));
     }
 };
 

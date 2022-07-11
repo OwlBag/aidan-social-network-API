@@ -18,8 +18,30 @@ const UserSchema = new Schema({
         unique: true,
         validate: emailValidator
     },
-    thoughts: [],
-    friends: []
+    thoughts: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Thought'
+        }
+    ],
+    friends: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ]
+    },
+    {
+        toJSON: {
+            virtuals: true,
+        },
+        id: false
+    }
+);
+
+// get friend count
+UserSchema.virtual('friendCount').get(function() {
+    return this.friends.length;
 });
 
 const User = model('User', UserSchema);

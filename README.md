@@ -2,6 +2,8 @@
 
   ## Description
   mock API for a social network made using MongoDB and Mongoose which features users, thoughts, and reactions
+  
+  ![Demonstration Video](https://youtu.be/KFe3qCqzeF4)
 
   ![license badge](https://img.shields.io/badge/license-The%20Unlicense-green)  
 
